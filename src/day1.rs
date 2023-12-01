@@ -8,11 +8,9 @@ pub fn solve(input: String) {
 		// println!("{}", line);
 
         let nums = line.chars().filter(|x| x.is_ascii_digit()).collect::<Vec<char>>();
-        // println!("{:?}", nums);
-
-        let calibration_part1 = format!("{}{}",&nums[0], &nums[nums.len() - 1]).parse::<u32>();//.to_i32().unwrap();
+        let res = format!("{}{}",&nums[0], &nums[nums.len() - 1]).parse::<u32>().unwrap();
         
-        result += calibration_part1.unwrap();
+        result += res;
 
         ////////////////////////////
         // part 2
@@ -27,14 +25,10 @@ pub fn solve(input: String) {
         line_part2 = line_part2.replace("seven", "seven7seven");
         line_part2 = line_part2.replace("eight", "eight8eight");
         line_part2 = line_part2.replace("nine", "nine9nine");
-
         
         let nums = line_part2.chars().filter(|x| x.is_ascii_digit()).collect::<Vec<char>>();
-
-        // let mut calibration = 0;
-        let calibration = format!("{}{}",&nums[0], &nums[nums.len() - 1]).parse::<u32>().unwrap();
+        let res = format!("{}{}",&nums[0], &nums[nums.len() - 1]).parse::<u32>().unwrap();
         
-        let res = calibration;
         // println!("{} -> {}", line_part2, res);
         result_part2 += res;
 	});
