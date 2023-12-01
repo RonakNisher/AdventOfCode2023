@@ -16,15 +16,15 @@ pub fn solve(input: String) {
         // part 2
         ////////////////////////////
 
-        let mut line_part2 = line.replace("one", "one1one");
-        line_part2 = line_part2.replace("two", "two2two");
-        line_part2 = line_part2.replace("three", "three3three");
-        line_part2 = line_part2.replace("four", "four4four");
-        line_part2 = line_part2.replace("five", "five5five");
-        line_part2 = line_part2.replace("six", "six6six");
-        line_part2 = line_part2.replace("seven", "seven7seven");
-        line_part2 = line_part2.replace("eight", "eight8eight");
-        line_part2 = line_part2.replace("nine", "nine9nine");
+        let line_part2 = line.replace("one", "one1one")
+                                    .replace("two", "two2two")
+                                    .replace("three", "three3three")
+                                    .replace("four", "four4four")
+                                    .replace("five", "five5five")
+                                    .replace("six", "six6six")
+                                    .replace("seven", "seven7seven")
+                                    .replace("eight", "eight8eight")
+                                    .replace("nine", "nine9nine");
         
         let nums = line_part2.chars().filter(|x| x.is_ascii_digit()).collect::<Vec<char>>();
         let res = format!("{}{}",&nums[0], &nums[nums.len() - 1]).parse::<u32>().unwrap();
