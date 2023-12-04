@@ -3,6 +3,7 @@ use std::env;
 
 mod day1;
 mod day2;
+mod day3;
 
 fn main() {
     // println!("Hello, world!");
@@ -29,6 +30,7 @@ fn main() {
 	match day.as_str() {
 		"1" => day1::solve(contents),
 		"2" => day2::solve(contents),
+		"3" => day3::solve(contents),
 		_ => println!("No solution for day {}", day),
 	}
 
