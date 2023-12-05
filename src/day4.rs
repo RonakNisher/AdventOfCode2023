@@ -23,9 +23,9 @@ pub fn solve(input: String) {
 
 		let (winning_numbers, our_numbers) = numbers.split_once(" | ").unwrap();
 
-		let winning_numbers = winning_numbers.split(" ").collect::<Vec<_>>().into_iter().filter(|x| !x.is_empty()).collect::<Vec<_>>();
-		let our_numbers = our_numbers.split(" ").collect::<Vec<_>>().into_iter().filter(|x| !x.is_empty()).collect::<Vec<_>>();
-		let matching_numbers = our_numbers.into_iter().filter(|x| winning_numbers.contains(x)).collect::<Vec<_>>();
+		let winning_numbers = winning_numbers.split_whitespace().collect::<Vec<_>>();
+		let our_numbers = our_numbers.split_whitespace().collect::<Vec<_>>();
+		let matching_numbers = our_numbers.iter().filter(|x| winning_numbers.contains(x)).collect::<Vec<_>>();
 
 		println!("no of matches are {}", matching_numbers.len());
 
