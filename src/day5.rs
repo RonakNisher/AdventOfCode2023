@@ -127,7 +127,7 @@ pub fn solve(input: String) {
 
 	// part 1
 
-	let _ = seeds.iter().map( |x| {
+	let min_res= seeds.iter().map( |x| {
 
 		let mut res = *x;
 
@@ -179,13 +179,10 @@ pub fn solve(input: String) {
 				break;
 			}
 		}
-
-		// println!("res is {}", res);
-
-		if res < result {
-			result = res;
-		}
+		return res;
 	}).collect_vec();
+
+	result = *min_res.iter().min().unwrap();
 
 	println!("Part 1: {}", result);
 	
@@ -193,10 +190,8 @@ pub fn solve(input: String) {
 	// part 2
 	///////////////
 	
-	// println!("seeds_part2 is {:?}", seeds_part2);
-
 	let mut found_part2 = false;
-	let mut location: u64 = 6335758; //52510009;
+	let mut location: u64 = 0;//6335758; //52510009;
 
 	while !found_part2 {
 
