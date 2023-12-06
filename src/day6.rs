@@ -2,66 +2,41 @@
 
 use itertools::Itertools;
 
-fn get_combinations(time: u64, distance: u64) -> Vec<u64> {
-	let mut results: Vec<u64> = Vec::new();
+fn get_combinations(time: u64, distance: u64) -> u64 {
+	// let mut results: u64 = 0;
 
-	for i in 0..time {
-		let speed: u64 = i as u64;
-		let distance_covered: u64 = speed * (time - i);
+	// for i in 1..time {
+	// 	let speed: u64 = i as u64;
+	// 	let distance_covered: u64 = speed * (time - i);
 
-		if distance_covered > distance {
-			results.push(distance_covered);
-		}
-	}
+	// 	if distance_covered > distance {
+	// 		results += 1;
+	// 	}
+	// }
 
-	results
+	// results
+
+	return (1..time).map(|x| x * (time - x)).filter( |&x| x > distance).count() as u64;
 }
 
 pub fn solve(input: String) {
 	let mut result: u64 = 0;
 	let mut result_part2: u64 = 0;
 
-	let input_lines = input.lines().collect::<Vec<_>>();
+	let input_lines = input.lines().collect_vec();
 
-	let times: Vec<u64> = input_lines[0].split_whitespace().skip(1).collect::<Vec<_>>().iter().map(|x| x.parse::<u64>().unwrap()).collect::<Vec<_>>();
-	let distances: Vec<u64> = input_lines[1].split_whitespace().skip(1).collect::<Vec<_>>().iter().map(|x| x.parse::<u64>().unwrap()).collect::<Vec<_>>();
-	let mut results: Vec<u64> = Vec::new();
+	let times: Vec<u64> = input_lines[0].split_whitespace().skip(1).map(|x| x.parse::<u64>().unwrap()).collect_vec();
+	let distances: Vec<u64> = input_lines[1].split_whitespace().skip(1).map(|x| x.parse::<u64>().unwrap()).collect_vec();
 
-	println!("times are {:?}", times);
-	println!("distances are {:?}", distances);
-
+	result = times.iter().zip(distances.iter()).map(|(&dist, &time)| get_combinations(dist, time)).product::<u64>();
+	
+	// part 2
 	let times_part2 = Itertools::join(&mut times.clone().iter(), "").parse::<u64>().unwrap();
 	let distances_part2 = Itertools::join(&mut distances.clone().iter(), "").parse::<u64>().unwrap();
 
-	// let times_part2 = times.clone().join("").parse::<u32>().unwrap();
-	println!("times_part2 is {}", times_part2);
-	println!("distances_part2 is {}", distances_part2);
-
-	for i in 0..times.len() {
-		let time = times[i];
-		let distance = distances[i];
-
-		// let speed = distance / time;
-
-		println!("time is {}, dist is {}", time, distance);
-
-		let combinations = get_combinations(time, distance);
-
-		println!("combinations are {:?}", combinations);
-
-		results.push(combinations.len() as u64);
-	}
-
-	result = results.iter().product();
-
-	// part 2
-	// println!("time is {}, dist is {}", time, distance);
-
 	let combinations = get_combinations(times_part2, distances_part2);
 
-	// println!("combinations are {:?}", combinations);
-
-	result_part2 = combinations.len() as u64;
+	result_part2 = combinations;
 
 	println!("*******************");
 	println!("Solved Day 1 Part 1: {}", result);
