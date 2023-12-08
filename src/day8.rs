@@ -76,11 +76,9 @@ pub fn solve(input: String) {
 	result = get_steps("AAA", "ZZZ", &map_nodes, &steps);
 
 	// part 2
-	let part2_input: Vec<String> = map_nodes.keys().filter(|&x| x.ends_with("A")).map( |x| String::from(x)).collect_vec();
-
 	result_part2 = 1;
 
-	for node in part2_input.iter() {
+	for node in map_nodes.keys().filter(|&x| x.ends_with("A")) {
 		result_part2 = lcm(result_part2, get_steps(node, "Z", &map_nodes, &steps));
 	}
 
