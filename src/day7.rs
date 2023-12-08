@@ -1,7 +1,5 @@
 // #[warn(dead_code)]
-
 use std::{collections::HashMap, fmt};
-
 use itertools::Itertools;
 
 #[derive(Debug)]
@@ -34,22 +32,22 @@ impl fmt::Display for Hand {
 }
 
 impl Hand {
-	fn get_numuric_value(c: char) -> i32 {
+	fn get_numuric_value(c: char, is_part_two: bool) -> i32 {
 		match c {
 			'A' => 14,
 			'K' => 13,
 			'Q' => 12,
-			'J' => 11,
+			'J' => if is_part_two { 1 } else { 11 },
 			'T' => 10,
 			_ => c.to_digit(10).unwrap() as i32,
 		}
 	}
 
-	fn compare_cards(&self, other: &Hand) -> std::cmp::Ordering {
+	fn compare_cards(&self, other: &Hand, is_part_two: bool) -> std::cmp::Ordering {
 		for (a, b) in self.cards.chars().zip(other.cards.chars()) {
 
-			let a = Self::get_numuric_value(a);
-			let b = Self::get_numuric_value(b);
+			let a = Self::get_numuric_value(a, is_part_two);
+			let b = Self::get_numuric_value(b, is_part_two);
 
 			let cmp = a.cmp(&b);
 
@@ -60,32 +58,18 @@ impl Hand {
 
 		std::cmp::Ordering::Equal
 	}
+}
 
-	fn get_numuric_value_part2(c: char) -> i32 {
-		match c {
-			'A' => 14,
-			'K' => 13,
-			'Q' => 12,
-			'J' => 1,
-			'T' => 10,
-			_ => c.to_digit(10).unwrap() as i32,
-		}
-	}
-
-	fn compare_cards_part2(&self, other: &Hand) -> std::cmp::Ordering {
-		for (a, b) in self.cards.chars().zip(other.cards.chars()) {
-
-			let a = Self::get_numuric_value_part2(a);
-			let b = Self::get_numuric_value_part2(b);
-
-			let cmp = a.cmp(&b);
-
-			if cmp != std::cmp::Ordering::Equal {
-				return cmp;
-			}
-		}
-
-		std::cmp::Ordering::Equal
+fn match_hand_type(max_common_cards_count: &i32, next_common_cards_count: &i32) -> HandType {
+	match (max_common_cards_count, next_common_cards_count) {
+		(5, _) => HandType::FiveOfaKind,
+		(4, _) => HandType::FourOfAKind,
+		(3, 2) => HandType::FullHouse,
+		(3, _) => HandType::ThreeOfAKind,
+		(2, 2) => HandType::TwoPair,
+		(2, _) => HandType::Pair,
+		(1, _) => HandType::HighCard,
+		_ => panic!("Invalid value"),
 	}
 }
 
@@ -99,29 +83,9 @@ fn get_hand_type(cards: &str) -> HandType {
 
 	let mut sorted = cards_map.values().sorted().rev();
 
-	let first = sorted.next().unwrap();
+	let (first, second) = (sorted.next().unwrap(), sorted.next().unwrap_or(&0));
 
-	match first {
-		5 => return HandType::FiveOfaKind,
-		4 => return HandType::FourOfAKind,
-		3 =>  { 
-				if sorted.next().unwrap() == &2 {
-					return HandType::FullHouse;
-				}
-				else {
-					return HandType::ThreeOfAKind; }
-				},
-		2 => {
-				if sorted.next().unwrap() == &2 {
-					return HandType::TwoPair;
-				}
-				else {
-					return HandType::Pair; }
-				},
-		1 => return HandType::HighCard,
-		_ => panic!("Invalid value"),
-	}
-
+	return match_hand_type(first, second);
 }
 
 fn get_hand_type_part2(cards: &str) -> HandType {
@@ -142,26 +106,7 @@ fn get_hand_type_part2(cards: &str) -> HandType {
 
 	let first = sorted.next().unwrap_or(&0) + count_of_j;
 
-	match first {
-		5 => return HandType::FiveOfaKind,
-		4 => return HandType::FourOfAKind,
-		3 =>  { 
-				if sorted.next().unwrap() == &2 {
-					return HandType::FullHouse;
-				}
-				else {
-					return HandType::ThreeOfAKind; }
-				},
-		2 => {
-				if sorted.next().unwrap() == &2 {
-					return HandType::TwoPair;
-				}
-				else {
-					return HandType::Pair; }
-				},
-		1 => return HandType::HighCard,
-		_ => panic!("Invalid value"),
-	}
+	return match_hand_type(&first, sorted.next().unwrap_or(&0));
 
 }
 
@@ -200,9 +145,6 @@ pub fn solve(input: String) {
 	let mut hands: Vec<Hand> = Vec::new();
 
 	input.lines().for_each(|line| {
-		// println!();
-		// println!("line is {}", line);
-
 		let (cards, bet) = line.split_once(" ").unwrap();
 
 		hands.push(get_hand(cards, bet.parse::<i32>().unwrap()));
@@ -213,28 +155,22 @@ pub fn solve(input: String) {
 
 	hands.sort_by(|a, b| {
 		let first = a.rank.cmp(&b.rank);
-		let second = a.compare_cards(&b);
+		let second = a.compare_cards(&b, false /*is_part_two*/);
 
 		first.then(second)
 	});
 
 	for (i, value) in hands.iter().enumerate() {
-		// println!("{}: {}", i, value);
 		result += value.bet * (i as i32 + 1);
 	}
 
-	// println!("hands is {:?}", hands);
-
-	// part 2
-
-	println!("*******************");
-	// hands_part2.iter().for_each(|h| {
-	// 	println!("{}", h);
-	// });
+	//////////////////////
+	// Part 2
+	//////////////////////
 
 	hands_part2.sort_by(|a, b| {
 		let first = a.rank_part2.cmp(&b.rank_part2);
-		let second = a.compare_cards_part2(&b);
+		let second = a.compare_cards(&b, true /*is_part_two*/);
 
 		first.then(second)
 	});
