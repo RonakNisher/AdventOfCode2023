@@ -44,7 +44,7 @@ fn get_steps(start: &str, ends_with: &str, map_nodes: &HashMap<String, Node>, st
 }
 
 pub fn solve(input: String) {
-	let mut result = 0;
+	let result;
 	let mut result_part2: u64 = 0;
 
 	let mut map_nodes: HashMap<String, Node> = HashMap::new();
