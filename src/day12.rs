@@ -1,204 +1,116 @@
 // #[warn(dead_code)]
-use std::{collections::{HashMap, HashSet}, result};
+use std::collections::HashMap;
 
-use itertools::{Itertools};
+use itertools::Itertools;
 
-fn get_valid_combinations(combinations: &Vec<Vec<char>>, code_vec: &Vec<u32>) -> u64 {
-	let mut result = 0;
-
-	println!("code_vec is {:?}", code_vec);
-	println!("count of combinations {}", combinations.len());
-
-	let mut invalid_starts: HashSet<Vec<char>> = HashSet::new();
-
-	combinations.iter().for_each(|combination| {
-		let mut code_index = 0;
-		let mut damaged_block_size = 0;
-		let mut valid = true;
-
-		println!();
-		println!("validating combination: {}", combination.iter().join(""));
-
-		if invalid_starts.iter().any(|x| combination.starts_with(x)) {
-			valid = false;
-			println!("Skipping due to prev invalid start");
-		}
-
-		let mut i = 0;
-		while valid && i < combination.len() {
-			if combination[i] == '#' {
-				// let mut count = 0;
-				while i < combination.len() && combination[i] == '#' {
-					damaged_block_size += 1;
-					i += 1;
-				}
-			}
-			else {
-				if damaged_block_size != 0 {
-					if code_index >= code_vec.len() || damaged_block_size != code_vec[code_index] {
-						valid = false;
-
-						invalid_starts.insert(combination[0..i].to_vec());
-						break;
-					}
-					else {
-						code_index += 1;
-						damaged_block_size = 0;
-					}
-				}
-				i += 1;
-			}
-		}
-
-		if valid && combination[combination.len() - 1] == '#' {
-			// code_index += 1;
-
-			// println!("combination: {}", combination.iter().join(""));
-			// println!("code_index: {}", code_index);
-			// println!("damaged_block_size: {}", damaged_block_size);
-
-			if code_index >= code_vec.len() || damaged_block_size != code_vec[code_index] {
-				// println!("invalid block size");
-				valid = false;
-			}
-
-			code_index += 1;
-		}
-
-		if code_index != code_vec.len() {
-			valid = false;
-		}
-
-		// println!("isValid: {}", valid);
-		
-		if valid {
-			// println!("valid combination: {}", combination.iter().join(""));
-			// println!();
-			result += 1;
-		}
-	});
-
-	println!("------------------------------- valid count is {}", result);
-
-	return result;
-}
-
-fn get_number_of_patterns(pattern: &str, code: &str) -> u64 {
-
-	let code_vec = code.split(",").map(|x| x.parse::<u32>().unwrap()).collect_vec();
-	// println!("code_vec is {:?}", code_vec);
-	// println!("*******************");
-
-	// let mut result = 0;
-
-	let mut combinations: Vec::<Vec<char>> = Vec::new();
-	let mut pattern_copy = pattern.chars().collect_vec();
-
-	let mut i = 0;
-
-	while i < pattern.len() {
-		// let mut code_index = 0;
-		let mut count_unknown = 0;
-
-		println!();
-		println!("pattern_copy[i] is {}, index {}", pattern_copy[i], i);
-		println!("combinations count is {}", combinations.len());
-
-		if pattern_copy[i] == '?' {
-			let mut j = i;
-			while j < pattern_copy.len() && pattern_copy[j] == '?' {
-				count_unknown += 1;
-				j += 1;
-			}
-
-			i += count_unknown;
-
-			// println!("count_unknown is {}", count_unknown);
-
-			let sets = (0..count_unknown).powerset().collect::<Vec<_>>();
-
-			// println!("sets is {:?}", sets);
-
-			let seed: Vec<char> = vec!('.'; count_unknown);
-			// println!("seed is {:?}", seed);
-
-			let mut permutations: Vec<Vec<char>> = Vec::new();
-
-			sets.iter().for_each(|x| {
-				let mut seed_copy = seed.clone();
-				x.iter().for_each(|y| {
-					seed_copy[*y] = '#';
-				});
-
-				permutations.push(seed_copy);
-			});
-
-			if combinations.is_empty() {
-				combinations = permutations.clone();
-			}
-			else {
-				let mut combinations_copy: Vec<Vec<char>> = Vec::new();
-				permutations.iter_mut().for_each(|perm| {
-					let perm_copy = perm.clone();
-					let _ = combinations.iter_mut().for_each(|x| {
-						let mut entry: Vec::<char> = Vec::new();
-						entry.append(x.clone().as_mut());
-						entry.append(perm_copy.clone().as_mut());
-
-						combinations_copy.push(entry);
-						// x.append(perm_copy.as_mut());
-						});
-				});
-
-				combinations = combinations_copy.clone();
-
-				// println!("combinations is {:?}", combinations);
-			}
-			println!("unknown");
-			// combinations.iter().for_each( |x | {
-			// 	println!("{}", x.iter().join(""));
-			// });
+fn should_return_out_of_bounds(index: usize, length: usize, is_code_vec_empty: bool) -> (bool, u64) {
+	if index == length {
+		if is_code_vec_empty {
+			return (true, 1);
 		}
 		else {
-			if combinations.is_empty() {
-				combinations.push(vec![pattern_copy[i]]);
-			}
-			else {
-				combinations.iter_mut().for_each(|x| x.push(pattern_copy[i]));
-			}
-
-			println!("not unknown");
-			// combinations.iter().for_each( |x | {
-			// 	println!("{}", x.iter().join(""));
-			// });
-
-			i += 1;
-
+			return (true, 0);
 		}
 	}
 
-	// println!("final combinations --------------------------------");
-	// combinations.iter().for_each( |x | {
-	// 	println!("{}", x.iter().join(""));
-	// });
+	return (false, 0);
+}
 
+fn get_number_of_patterns(code_vec: &Vec<u32>, partial_string: &mut Vec<char>, valid_count_map: &mut HashMap<(Vec<char>, Vec<u32>), u64>) -> u64 {
 
-	return  get_valid_combinations(&combinations, &code_vec);
+	let (should_return, res) = should_return_out_of_bounds(0, partial_string.len(), code_vec.is_empty());
+	if should_return {
+		return res;
+	}
+
+	if valid_count_map.contains_key(&(partial_string.clone(), code_vec.clone())) {
+		return valid_count_map.get(&(partial_string.clone(), code_vec.clone())).unwrap().clone();
+	}
+
+	let mut i = 0;
+	while i < partial_string.len() && partial_string.iter().nth(i).unwrap() == &'.' {
+		i += 1;
+	}
+	
+	let (should_return, res) = should_return_out_of_bounds(i, partial_string.len(), code_vec.is_empty());
+	if should_return {
+		return res;
+	}
+	
+	let mut current_char = partial_string.iter().nth(i).unwrap();
+
+	if current_char == &'#' {
+		let mut damaged_count = 0;
+
+		while i < partial_string.len() && partial_string.iter().nth(i).unwrap() == &'#' {
+			i += 1;
+			damaged_count += 1;
+		}
+
+		if i == partial_string.len() {
+			if code_vec.len() == 1 && damaged_count == code_vec[0] {
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+
+		current_char = partial_string.iter().nth(i).unwrap();
+
+		if current_char == &'.' {
+			// end of a block, check if the length matches
+			if code_vec.first() == Some(&damaged_count) {
+				let mut partial_string_copy = partial_string.clone();
+				partial_string_copy.drain(0..i);
+
+				let res = get_number_of_patterns(&code_vec[1..].to_vec(), &mut partial_string_copy, valid_count_map);
+
+				return res;
+			}
+			else {
+				return 0;
+			}
+		}
+	}
+
+	if current_char == &'?' {
+		let mut path1 = partial_string.clone();
+		path1[i] = '.';
+
+		let mut path2 = partial_string.clone();
+		path2[i] = '#';
+		
+		let path1_res = get_number_of_patterns(code_vec, &mut path1, valid_count_map);
+		valid_count_map.insert((path1, code_vec.clone()), path1_res);
+		
+		let path2_res = get_number_of_patterns(code_vec, &mut path2, valid_count_map);
+		valid_count_map.insert((path2, code_vec.clone()), path2_res);
+		
+		valid_count_map.insert((partial_string.clone(), code_vec.clone()), path1_res + path2_res);
+		
+		return path1_res + path2_res;
+	}
+
+	return 0;
 }
 
 pub fn solve(input: String) {
 	let mut result = 0;
 	let mut result_part2 = 0;
 
+	let mut valid_count_map: HashMap<(Vec<char>, Vec<u32>), u64> = HashMap::new();
+	valid_count_map.reserve(10_000_0);
+
 	input.lines().for_each(|line| {
-		println!();
-		// println!("line is {}", line);
-
 		let (pattern, code) = line.split_once(" ").unwrap();
-		println!("pattern is {}", pattern);
-		println!("code is {}", code);
+		// println!("pattern is {}", pattern);
+		// println!("code is {}", code);
 
-		// result += get_number_of_patterns(pattern, code);
+		let code_vec = code.split(",").map(|x| x.parse::<u32>().unwrap()).collect_vec();
+		result += get_number_of_patterns(&code_vec, &mut pattern.chars().collect_vec(), &mut valid_count_map);
+
+		valid_count_map.clear();
 
 		// part 2
 
@@ -210,16 +122,13 @@ pub fn solve(input: String) {
 
 		let mut code_part2 = code.to_string();
 		code_part2.push(',');
-		// let mut code_part2 = code.chars().collect_vec().clone();
-		// code_part2.push(',');
-		code_part2 = code_part2.repeat(repeat_times);//.iter().join("").pop().unwrap().to_string();
+		code_part2 = code_part2.repeat(repeat_times);
 		code_part2.pop();
-		// code_part2 = code_part2[0..code_part2.len() - 1];
 
-		println!("pattern_part2 is {}", pattern_part2);
-		println!("code_part2 is {}", code_part2);
+		let code_vec = code_part2.split(",").map(|x| x.parse::<u32>().unwrap()).collect_vec();
+		result_part2 += get_number_of_patterns(&code_vec, &mut pattern_part2.chars().collect_vec(), &mut valid_count_map);
 
-		result_part2 += get_number_of_patterns(&pattern_part2, &code_part2);
+		valid_count_map.clear();
 	});
 
 	println!("*******************");
