@@ -64,7 +64,11 @@ fn get_number_of_patterns(code_vec: &Vec<u32>, partial_string: &mut Vec<char>, v
 				let mut partial_string_copy = partial_string.clone();
 				partial_string_copy.drain(0..i);
 
-				let res = get_number_of_patterns(&code_vec[1..].to_vec(), &mut partial_string_copy, valid_count_map);
+				let foo = code_vec[1..].to_vec();
+
+				let res = get_number_of_patterns(&foo, &mut partial_string_copy, valid_count_map);
+
+				valid_count_map.insert((partial_string_copy.clone(), foo), res);
 
 				return res;
 			}

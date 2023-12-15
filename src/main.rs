@@ -14,6 +14,8 @@ mod day10;
 mod day11;
 mod day12;
 mod day13;
+mod day14;
+mod day15;
 
 fn main() {
     // println!("Hello, world!");
@@ -51,6 +53,8 @@ fn main() {
 		"11" => day11::solve(contents),
 		"12" => day12::solve(contents),
 		"13" => day13::solve(contents),
+		"14" => day14::solve(contents),
+		"15" => day15::solve(contents),
 		_ => println!("No solution for day {}", day),
 	}
 
