@@ -20,6 +20,7 @@ mod day16;
 mod day17;
 mod day18;
 mod day19;
+mod day20;
 mod day21;
 mod day22;
 mod day23;
@@ -27,8 +28,6 @@ mod day24;
 mod day25;
 
 fn main() {
-    // println!("Hello, world!");
-
     let args: Vec<String> = env::args().collect();
     println!("{:?}", args);
 
@@ -41,12 +40,6 @@ fn main() {
 	println!("Filepath: {}", filepath);
     let contents = fs::read_to_string(filepath)
         .expect("Should have been able to read the file");
-
-    // println!("With text:\n{contents}");
-
-	// contents.lines().for_each(|line| {
-	// 	println!("{}", line);
-	// });
 
 	match day.as_str() {
 		"1" => day1::solve(contents),
@@ -68,6 +61,7 @@ fn main() {
 		"17" => day17::solve(contents),
 		"18" => day18::solve(contents),
 		"19" => day19::solve(contents),
+		"20" => day20::solve(contents),
 		"21" => day21::solve(contents),
 		"22" => day22::solve(contents),
 		"23" => day23::solve(contents),
